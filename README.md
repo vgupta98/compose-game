@@ -7,14 +7,28 @@ A simple 2D game engine built with Jetpack Compose. This library provides basic 
 - Add and manage game objects (round objects and boundaries for now)
 - Start, pause, and stop the game loop
 - Collision detection with customizable restitution
+- Add gravity and acceleration
 - Listener support for game events
 - Rendering of game objects using Jetpack Compose
 
 Feel free to experiment and add your own features.
 
 ## Installation
+1. Add 'https://jitpack.io' to the ```settings.gradle``` file of your project. If you have configured your project such that all project level repositories are defined in the **project level ```build.gradle```** file, then, instead of adding it to the settings.gradle file, add it to the **project level build.gradle** file.
 
-Add the jitpack repository to your root gradle file and the dependency to your `build.gradle` file:
+```groovy
+// settings.gradle
+dependencyResolutionManagement {
+    repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
+    repositories {
+        google()
+        mavenCentral()
+        maven { url 'https://jitpack.io' } // add this
+    }
+}
+```
+
+2. Add the jitpack repository to your root gradle file and the dependency to your `build.gradle` file:
 
 ```groovy
 allprojects {
@@ -25,7 +39,7 @@ allprojects {
 }
 
 dependencies {
-    implementation 'io.github.vgupta98.compose-game:compose-game:1.0.0'
+    implementation 'com.github.vgupta98:compose-game:1.0.0'
 }
 ```
 
@@ -37,7 +51,7 @@ val gameEngine = GameFactory.getInstance()
 ```
 2. Add round objects and boundaries to the game engine:
 ```kotlin
-val roundedObject = RoundedObject(
+val roundObject = RoundObject(
     id = 1,
     initialPosition = Vector2D(100f, 100f),
     radius = 20f,
@@ -53,7 +67,7 @@ val boundary = Boundary(
     restitution = 1f
 )
 
-gameEngine.addGameObject(roundedObject)
+gameEngine.addGameObject(roundObject)
 gameEngine.addGameObject(boundary)
 ```
 3. Start the game loop using a CoroutineScope:
@@ -70,7 +84,7 @@ gameEngine.stopGameLoop(scope)
 @Composable
 fun MyGameScreen() {
     val gameResources = listOf(
-        RoundedObjectResource(
+        RoundObjectResource(
             id = 1,
             painter = rememberVectorPainter(image = Icons.Default.Circle)
         ),
@@ -101,6 +115,10 @@ class MyGameListener : GameListener {
 val listener = MyGameListener()
 gameEngine.addListener(listener)
 ```
+
+Checkout the sample app included with this project for complete usage. Here is a preview of it:
+
+![Example](gifs/example.gif)
 
 ## Contribution
 

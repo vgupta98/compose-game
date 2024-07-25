@@ -8,7 +8,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.drawscope.DrawScope
 import io.github.vgupta98.compose_game.data.Boundary
 import io.github.vgupta98.compose_game.data.GameObject
-import io.github.vgupta98.compose_game.data.RoundedObject
+import io.github.vgupta98.compose_game.data.RoundObject
 import io.github.vgupta98.compose_game.domain.GameEngine
 import io.github.vgupta98.compose_game.domain.GameEngineImpl
 import io.github.vgupta98.compose_game.presentation.model.BoundaryResource
@@ -56,7 +56,7 @@ fun GameBoard(
                         )
                     }
 
-                    is RoundedObject -> {
+                    is RoundObject -> {
                         require(resource is RoundedObjectResource) {
                             "Wrong resource type for id: ${gameObject.id}."
                         }
@@ -68,7 +68,7 @@ fun GameBoard(
                         )
                         drawRoundedObject(
                             painter = resource.painter,
-                            radius = gameObject.radius.x,
+                            radius = gameObject.radius,
                             theta = gameEngine.getRotation(
                                 initialRotation = gameObject.initialRotation,
                                 initialAngVelocity = gameObject.initialAngVelocity,

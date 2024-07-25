@@ -2,8 +2,7 @@ package io.github.vgupta98.compose_game
 
 import androidx.lifecycle.ViewModel
 import io.github.vgupta98.compose_game.data.Boundary
-import io.github.vgupta98.compose_game.data.RoundedObject
-import io.github.vgupta98.compose_game.data.Vector1D
+import io.github.vgupta98.compose_game.data.RoundObject
 import io.github.vgupta98.compose_game.data.Vector2D
 import io.github.vgupta98.compose_game.domain.GameFactory
 
@@ -13,48 +12,48 @@ class MainViewModel : ViewModel() {
 
     init {
         gameEngine.addGameObject(
-            RoundedObject(
+            RoundObject(
                 id = 1,
                 initialPosition = Vector2D(100f, 300f),
-                initialVelocity = Vector2D(400f, 0f),
+                initialVelocity = Vector2D(600f, 0f),
                 acceleration = Vector2D(0f, 0f),
-                radius = Vector1D(30f),
-                mass = 20f,
-                initialAngVelocity = 0f,
+                radius = 30f,
+                mass = 60f,
+                initialAngVelocity = 200f,
             )
         )
 
         gameEngine.addGameObject(
-            RoundedObject(
+            RoundObject(
                 id = 2,
                 initialPosition = Vector2D(300f, 300f),
                 initialVelocity = Vector2D(-100f, 0f),
                 acceleration = Vector2D(0f, 0f),
-                radius = Vector1D(40f),
+                radius = 40f,
                 mass = 30f,
-                initialAngVelocity = 0f,
+                initialAngVelocity = 60f,
             )
         )
 
         gameEngine.addGameObject(
-            RoundedObject(
+            RoundObject(
                 id = 3,
                 initialPosition = Vector2D(200f, 50f),
                 initialVelocity = Vector2D(10f, 400f),
-                acceleration = Vector2D(30f, 0f),
-                radius = Vector1D(30f),
+                acceleration = Vector2D(0f, 0f),
+                radius = 30f,
                 mass = 30f,
                 initialAngVelocity = 0f,
             )
         )
 
         gameEngine.addGameObject(
-            RoundedObject(
+            RoundObject(
                 id = 8,
                 initialPosition = Vector2D(300f, 70f),
                 initialVelocity = Vector2D(10f, -300f),
                 acceleration = Vector2D(0f, 0f),
-                radius = Vector1D(30f),
+                radius = 30f,
                 mass = 40f,
                 initialAngVelocity = 0f,
             )

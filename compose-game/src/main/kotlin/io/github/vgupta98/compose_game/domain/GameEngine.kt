@@ -13,6 +13,8 @@ interface GameEngine {
 
     fun startGameLoop(scope: CoroutineScope)
 
+    fun pauseGameLoop(scope: CoroutineScope)
+
     fun stopGameLoop(scope: CoroutineScope)
 
     fun addListener(gameListener: GameListener)

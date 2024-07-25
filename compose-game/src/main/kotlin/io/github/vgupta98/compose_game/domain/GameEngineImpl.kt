@@ -6,7 +6,7 @@ import androidx.compose.animation.core.tween
 import androidx.compose.runtime.mutableStateListOf
 import io.github.vgupta98.compose_game.data.Boundary
 import io.github.vgupta98.compose_game.data.GameObject
-import io.github.vgupta98.compose_game.data.RoundedObject
+import io.github.vgupta98.compose_game.data.RoundObject
 import io.github.vgupta98.compose_game.data.Vector2D
 import io.github.vgupta98.compose_game.data.times
 import kotlinx.coroutines.CoroutineScope
@@ -16,7 +16,9 @@ import kotlin.math.abs
 import kotlin.math.min
 import kotlin.math.pow
 
-class GameEngineImpl internal constructor() : GameEngine {
+class GameEngineImpl internal constructor(
+    private val initialConditionsChecker: InitialConditionsChecker
+) : GameEngine {
 
     internal val gameObjects = mutableStateListOf<GameObject>()
 
@@ -34,6 +36,10 @@ class GameEngineImpl internal constructor() : GameEngine {
     override fun addGameObject(gameObject: GameObject) {
         require(gameObject.id !in gameObjects.map { it.id }) {
             "Id: ${gameObject.id} is already present. Please use a new id."
+        }
+        when(gameObject) {
+            is Boundary -> initialConditionsChecker.checkBoundary(gameObject)
+            is RoundObject -> initialConditionsChecker.checkRoundObject(gameObject)
         }
         gameObjects.add(gameObject)
     }
@@ -62,12 +68,19 @@ class GameEngineImpl internal constructor() : GameEngine {
         }
     }
 
+    override fun pauseGameLoop(scope: CoroutineScope) {
+        isGameLoopRunning = false
+        gameJob?.cancel()
+        gameJob = null
+    }
+
     override fun stopGameLoop(scope: CoroutineScope) {
         isGameLoopRunning = false
         gameJob?.cancel()
         gameJob = null
         loopCount = 1
 
+        clearGameObjects()
         scope.launch {
             gameLoopTime.snapTo(0f)
         }
@@ -100,11 +113,14 @@ class GameEngineImpl internal constructor() : GameEngine {
     ): Float {
         // use Newton's equation of motion to calculate rotation when initial rotation and angular velocity is given
         // θ = ωt
-        val time = gameLoopTime.value - lastCollisionTime
-        return initialRotation + (initialAngVelocity * time)
+        val loopTime = gameLoopTime.value
+        val time = loopTime - lastCollisionTime
+        val t = initialRotation + initialAngVelocity * time
+        return t
+
     }
 
-    internal fun getVelocity(
+    private fun getVelocity(
         initialVelocity: Vector2D,
         acceleration: Vector2D,
         lastCollisionTime: Float
@@ -122,7 +138,7 @@ class GameEngineImpl internal constructor() : GameEngine {
                 val obj1 = gameObjects[i]
                 val obj2 = gameObjects[j]
 
-                if (obj1 is RoundedObject && obj2 is RoundedObject) {
+                if (obj1 is RoundObject && obj2 is RoundObject) {
                     val pos1 = getPosition(
                         initialPosition = obj1.initialPosition,
                         initialVelocity = obj1.initialVelocity,
@@ -149,7 +165,7 @@ class GameEngineImpl internal constructor() : GameEngine {
                     val m2 = obj2.mass
 
                     // unit vector along the line of impact
-                    val uVector = (pos2 - pos1) / (pos2 - pos1).magnitude()
+                    val uVector = (pos2 - pos1).normalize()
 
                     // coefficient of restitution to be used
                     val e = min(obj1.restitution, obj2.restitution)
@@ -161,11 +177,13 @@ class GameEngineImpl internal constructor() : GameEngine {
 
                     // check whether the collision occurred or not
                     if (
-                        ((pos1 - pos2).magnitude() < (obj1.radius + obj2.radius).x) &&
+                        ((pos1 - pos2).magnitude() < obj1.radius + obj2.radius) &&
                         (v1Parallel - v2Parallel).dot(pos1 - pos2) < 0
                     ) {
                         // collision occurred
                         notifyListeners(obj1.id, obj2.id)
+
+                        val time = gameLoopTime.value
 
                         // perpendicular components of v1 and v2 along the line of impact
                         val v1Perpendicular = v1 - v1Parallel
@@ -181,13 +199,38 @@ class GameEngineImpl internal constructor() : GameEngine {
                         val v1Final = v1FinalParallel + v1Perpendicular
                         val v2Final = v2FinalParallel + v2Perpendicular
 
+                        // --- angular collision---
+
+                        // moment of inertia
+                        val moI1 = 0.5f * m1 * obj1.radius * obj1.radius
+                        val moI2 = 0.5f * m2 * obj2.radius * obj2.radius
+
+                        val om1 = obj1.initialAngVelocity
+                        val om2 = obj2.initialAngVelocity
+
+                        // current rotations
+                        val theta1 = getRotation(
+                            initialRotation = obj1.initialRotation,
+                            initialAngVelocity = om1,
+                            lastCollisionTime = obj1.lastCollisionTime
+                        )
+                        val theta2 = getRotation(
+                            initialRotation = obj2.initialRotation,
+                            initialAngVelocity = om2,
+                            lastCollisionTime = obj2.lastCollisionTime
+                        )
+
+                        val om1Final =
+                            ((moI1 - moI2) * om1) / (moI1 + moI2) + (2 * moI2 * om2) / (moI1 + moI2)
+                        val om2Final =
+                            ((moI2 - moI1) * om2) / (moI1 + moI2) + (2 * moI1 * om1) / (moI1 + moI2)
+
                         // update the velocities and position
-                        updateGameObject(obj1.id, v1Final, pos1, gameLoopTime.value)
-                        updateGameObject(obj2.id, v2Final, pos2, gameLoopTime.value)
+                        updateGameObject(obj1.id, v1Final, om1Final, pos1, theta1, time)
+                        updateGameObject(obj2.id, v2Final, om2Final, pos2, theta2, time)
                     }
-                }
-                else if ((obj1 is Boundary && obj2 is RoundedObject) || (obj2 is Boundary && obj1 is RoundedObject)) {
-                    val ball = if (obj1 is RoundedObject) obj1 else obj2 as RoundedObject
+                } else if ((obj1 is Boundary && obj2 is RoundObject) || (obj2 is Boundary && obj1 is RoundObject)) {
+                    val ball = if (obj1 is RoundObject) obj1 else obj2 as RoundObject
                     val boundary = if (obj1 is Boundary) obj1 else obj2 as Boundary
 
                     // start and end of the boundary
@@ -200,7 +243,7 @@ class GameEngineImpl internal constructor() : GameEngine {
                     val nVec = Vector2D(dVec.y, -dVec.x)
 
                     // unit vector for normal to boundary
-                    val nVecUnit = nVec/nVec.magnitude()
+                    val nVecUnit = nVec.normalize()
 
                     // velocity of the ball
                     val v = getVelocity(
@@ -217,24 +260,27 @@ class GameEngineImpl internal constructor() : GameEngine {
                         lastCollisionTime = ball.lastCollisionTime
                     )
 
-
                     // distance between boundary and ball
-                    val distance = abs(dVec * (posBall - posStart))/dVec.magnitude()
+                    val distance = abs(dVec * (posBall - posStart)) / dVec.magnitude()
 
                     // projection of ball on boundary
-                    val projectVec = posStart + ((posBall - posStart).dot(dVec)/dVec.dot(dVec)) * dVec
+                    val projectVec =
+                        posStart + ((posBall - posStart).dot(dVec) / dVec.dot(dVec)) * dVec
 
-                    val posStartExt = posStart - ball.radius.x * (dVec/dVec.magnitude())
-                    val posEndExt = posEnd + ball.radius.x * (dVec/dVec.magnitude())
+                    val posStartExt = posStart - ball.radius * (dVec / dVec.magnitude())
+                    val posEndExt = posEnd + ball.radius * (dVec / dVec.magnitude())
 
                     // check if the collision occurred or not
                     if (
-                        distance < ball.radius.x  &&
+                        distance < ball.radius &&
                         (v.dot(nVecUnit) * nVec.dot(posBall - posStart) < 0) &&
                         (posStartExt.dot(dVec) <= projectVec.dot(dVec) && projectVec.dot(dVec) <= posEndExt.dot(dVec))
                     ) {
                         // collision occurred
                         notifyListeners(ball.id, boundary.id)
+
+                        val time = gameLoopTime.value - 0.01f
+
                         // velocity component normal to boundary
                         val vNormal = (v.dot(nVecUnit)) * nVecUnit
 
@@ -247,12 +293,18 @@ class GameEngineImpl internal constructor() : GameEngine {
                         // final velocity after collision
                         val vFinal = vTangent - e * vNormal
 
+                        // angular collision
+                        val om = ball.initialAngVelocity
+                        val theta = getRotation(
+                            initialRotation = ball.initialRotation,
+                            initialAngVelocity = om,
+                            lastCollisionTime = ball.lastCollisionTime
+                        )
+
                         // update the velocities and positions
-                        updateGameObject(ball.id, vFinal, posBall, gameLoopTime.value)
+                        updateGameObject(ball.id, vFinal, om, posBall, theta, time)
                     }
-
                 }
-
             }
         }
     }
@@ -260,15 +312,19 @@ class GameEngineImpl internal constructor() : GameEngine {
     private fun updateGameObject(
         id: Int,
         newVelocity: Vector2D,
+        newAngVelocity: Float,
         newPosition: Vector2D,
+        newRotation: Float,
         collisionTime: Float
     ) {
         gameObjects.find { it.id == id }?.apply {
-            if (this is RoundedObject) {
+            if (this is RoundObject) {
                 val updatedObject =
                     this.copy(
                         initialVelocity = newVelocity,
                         initialPosition = newPosition,
+                        initialAngVelocity = newAngVelocity,
+                        initialRotation = newRotation,
                         lastCollisionTime = collisionTime
                     )
                 gameObjects[gameObjects.indexOf(this)] = updatedObject
@@ -283,5 +339,6 @@ class GameEngineImpl internal constructor() : GameEngine {
 
 object GameFactory {
 
-    fun getInstance() = GameEngineImpl()
+    private val initialConditionsChecker by lazy { InitialConditionsChecker() }
+    fun getInstance() = GameEngineImpl(initialConditionsChecker)
 }

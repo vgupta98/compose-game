@@ -14,11 +14,18 @@ Feel free to experiment and add your own features.
 
 ## Installation
 
-Add the dependency to your `build.gradle.kts` file:
+Add the jitpack repository to your root gradle file and the dependency to your `build.gradle` file:
 
-```kotlin
+```groovy
+allprojects {
+    repositories {
+        ...
+        maven { url "https://jitpack.io" }
+    }
+}
+
 dependencies {
-    implementation("io.github.vgupta98:compose_game:1.0.0")
+    implementation 'io.github.vgupta98.compose-game:compose-game:1.0.0'
 }
 ```
 

@@ -13,7 +13,7 @@ import io.github.vgupta98.compose_game.domain.GameEngine
 import io.github.vgupta98.compose_game.domain.GameEngineImpl
 import io.github.vgupta98.compose_game.presentation.model.BoundaryResource
 import io.github.vgupta98.compose_game.presentation.model.GameResource
-import io.github.vgupta98.compose_game.presentation.model.RoundedObjectResource
+import io.github.vgupta98.compose_game.presentation.model.RoundObjectResource
 
 @Composable
 internal fun GameCanvas(modifier: Modifier, onDraw: GameDrawScope.() -> Unit) {
@@ -23,6 +23,15 @@ internal fun GameCanvas(modifier: Modifier, onDraw: GameDrawScope.() -> Unit) {
     }
 }
 
+/**
+ * A Composable function that renders the game board using the provided game engine and resources.
+ *
+ * @param modifier A [Modifier] for customizing the appearance and layout of this composable.
+ * @param gameEngine An instance of [GameEngine] that manages the game's objects and logic.
+ * @param gameResources A list of [GameResource] instances that provide the visual representations for the game objects.
+ * @param onDrawAbove A lambda function to draw anything above the game objects.
+ * @param onDrawBehind A lambda function to draw anything below the game objects.
+ */
 @Composable
 fun GameBoard(
     modifier: Modifier = Modifier,
@@ -57,7 +66,7 @@ fun GameBoard(
                     }
 
                     is RoundObject -> {
-                        require(resource is RoundedObjectResource) {
+                        require(resource is RoundObjectResource) {
                             "Wrong resource type for id: ${gameObject.id}."
                         }
                         val finalPosition = gameEngine.getPosition(

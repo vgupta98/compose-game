@@ -25,7 +25,7 @@ import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.unit.dp
 import io.github.vgupta98.compose_game.presentation.GameBoard
 import io.github.vgupta98.compose_game.presentation.model.BoundaryResource
-import io.github.vgupta98.compose_game.presentation.model.RoundedObjectResource
+import io.github.vgupta98.compose_game.presentation.model.RoundObjectResource
 import io.github.vgupta98.compose_game.ui.theme.ComposegameTheme
 
 class MainActivity : ComponentActivity() {
@@ -54,23 +54,23 @@ class MainActivity : ComponentActivity() {
                     GameBoard(
                         gameEngine = viewModel.gameEngine,
                         gameResources = listOf(
-                            RoundedObjectResource(
+                            RoundObjectResource(
                                 id = 1,
                                 painter = painter
                             ),
-                            RoundedObjectResource(
+                            RoundObjectResource(
                                 id = 2,
                                 painter = painter2
                             ),
-                            RoundedObjectResource(
+                            RoundObjectResource(
                                 id = 3,
                                 painter = painter3
                             ),
-                            RoundedObjectResource(
+                            RoundObjectResource(
                                 id = 8,
                                 painter = painter4
                             ),
-                            RoundedObjectResource(
+                            RoundObjectResource(
                                 id = 9,
                                 painter = painter5
                             ),

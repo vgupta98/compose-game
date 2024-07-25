@@ -86,6 +86,7 @@ class GameEngineImpl internal constructor(
         loopCount = 1
 
         clearGameObjects()
+        removeAllListeners()
         scope.launch {
             gameLoopTime.snapTo(0f)
         }

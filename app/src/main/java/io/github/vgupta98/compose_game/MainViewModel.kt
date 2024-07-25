@@ -15,8 +15,8 @@ class MainViewModel : ViewModel() {
             RoundObject(
                 id = 1,
                 initialPosition = Vector2D(100f, 300f),
-                initialVelocity = Vector2D(600f, 0f),
-                acceleration = Vector2D(0f, 0f),
+                initialVelocity = Vector2D(300f, 40f),
+                acceleration = Vector2D(30f, -10f),
                 radius = 30f,
                 mass = 60f,
                 initialAngVelocity = 200f,
@@ -27,9 +27,9 @@ class MainViewModel : ViewModel() {
             RoundObject(
                 id = 2,
                 initialPosition = Vector2D(300f, 300f),
-                initialVelocity = Vector2D(-100f, 0f),
+                initialVelocity = Vector2D(100f, -100f),
                 acceleration = Vector2D(0f, 0f),
-                radius = 40f,
+                radius = 30f,
                 mass = 30f,
                 initialAngVelocity = 60f,
             )
@@ -38,8 +38,8 @@ class MainViewModel : ViewModel() {
         gameEngine.addGameObject(
             RoundObject(
                 id = 3,
-                initialPosition = Vector2D(200f, 50f),
-                initialVelocity = Vector2D(10f, 400f),
+                initialPosition = Vector2D(500f, 500f),
+                initialVelocity = Vector2D(30f, -300f),
                 acceleration = Vector2D(0f, 0f),
                 radius = 30f,
                 mass = 30f,
@@ -50,8 +50,19 @@ class MainViewModel : ViewModel() {
         gameEngine.addGameObject(
             RoundObject(
                 id = 8,
-                initialPosition = Vector2D(300f, 70f),
-                initialVelocity = Vector2D(10f, -300f),
+                initialPosition = Vector2D(500f, 700f),
+                initialVelocity = Vector2D(10f, 300f),
+                acceleration = Vector2D(0f, 0f),
+                radius = 30f,
+                mass = 40f,
+                initialAngVelocity = 0f,
+            )
+        )
+        gameEngine.addGameObject(
+            RoundObject(
+                id = 9,
+                initialPosition = Vector2D(200f, 700f),
+                initialVelocity = Vector2D(100f, 200f),
                 acceleration = Vector2D(0f, 0f),
                 radius = 30f,
                 mass = 40f,
@@ -64,37 +75,29 @@ class MainViewModel : ViewModel() {
         gameEngine.addGameObject(
             Boundary(
                 id = 4,
-                startPosition = Vector2D(1f, 1f),
-                endPosition = Vector2D(600f, 1f),
+                startPosition = Vector2D(50f, 50f),
+                endPosition = Vector2D(650f, 50f),
             )
         )
         gameEngine.addGameObject(
             Boundary(
                 id = 5,
-                startPosition = Vector2D(600f, 1f),
-                endPosition = Vector2D(600f, 600f),
+                startPosition = Vector2D(650f, 50f),
+                endPosition = Vector2D(650f, 900f),
             )
         )
         gameEngine.addGameObject(
             Boundary(
                 id = 6,
-                startPosition = Vector2D(600f, 600f),
-                endPosition = Vector2D(1f, 600f),
+                startPosition = Vector2D(650f, 900f),
+                endPosition = Vector2D(50f, 900f),
             )
         )
         gameEngine.addGameObject(
             Boundary(
                 id = 7,
-                startPosition = Vector2D(1f, 600f),
-                endPosition = Vector2D(1f, 1f),
-            )
-        )
-
-        gameEngine.addGameObject(
-            Boundary(
-                id = 9,
-                startPosition = Vector2D(200f, 200f),
-                endPosition = Vector2D(400f, 400f),
+                startPosition = Vector2D(50f, 900f),
+                endPosition = Vector2D(50f, 50f),
             )
         )
 

@@ -27,9 +27,12 @@ class GameEngineImpl internal constructor(
     private val gameLoopTime = Animatable(0f)
 
     @Volatile
-    private var isGameLoopRunning = false
+    var isGameLoopRunning = false
+        private set
 
     private var loopCount = 1
+
+    private var lastPausedTime = 0f
 
     private var gameJob: Job? = null
 
@@ -55,14 +58,15 @@ class GameEngineImpl internal constructor(
     override fun startGameLoop(scope: CoroutineScope) {
         gameJob = scope.launch {
             isGameLoopRunning = true
-            while (isGameLoopRunning) {
+            while (true) {
                 gameLoopTime.animateTo(
-                    10f * loopCount,
-                    animationSpec = tween(10_000, easing = LinearEasing)
+                    LOOP_TIME_INTERVAL_IN_SECONDS.toFloat() * loopCount,
+                    animationSpec = tween(LOOP_TIME_INTERVAL_IN_MILLIS - (lastPausedTime * 1000).toInt(), easing = LinearEasing)
                 ) {
                     // check for collision for each value of updated time
                     checkForCollisions()
                 }
+                lastPausedTime = 0f
                 loopCount++
             }
         }
@@ -70,6 +74,7 @@ class GameEngineImpl internal constructor(
 
     override fun pauseGameLoop(scope: CoroutineScope) {
         isGameLoopRunning = false
+        lastPausedTime = gameLoopTime.value % LOOP_TIME_INTERVAL_IN_SECONDS
         gameJob?.cancel()
         gameJob = null
     }
@@ -335,10 +340,10 @@ class GameEngineImpl internal constructor(
     private fun notifyListeners(objectId1: Int, objectId2: Int) {
         listeners.forEach { it.onCollision(objectId1, objectId2) }
     }
-}
 
-object GameFactory {
+    companion object {
 
-    private val initialConditionsChecker by lazy { InitialConditionsChecker() }
-    fun getInstance() = GameEngineImpl(initialConditionsChecker)
+        private const val LOOP_TIME_INTERVAL_IN_MILLIS = 10_000
+        private const val LOOP_TIME_INTERVAL_IN_SECONDS = 10
+    }
 }

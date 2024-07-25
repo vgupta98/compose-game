@@ -10,7 +10,6 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Button
 import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -23,7 +22,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.graphics.vector.rememberVectorPainter
 import androidx.compose.ui.res.vectorResource
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import io.github.vgupta98.compose_game.presentation.GameBoard
 import io.github.vgupta98.compose_game.presentation.model.BoundaryResource
@@ -41,7 +39,7 @@ class MainActivity : ComponentActivity() {
                 val scope = rememberCoroutineScope()
 
                 var isPlaying by remember {
-                    mutableStateOf(false)
+                    mutableStateOf(true)
                 }
                 LaunchedEffect(Unit) {
                     viewModel.gameEngine.startGameLoop(scope)
@@ -51,6 +49,7 @@ class MainActivity : ComponentActivity() {
                 val painter2 = rememberVectorPainter(image = vector)
                 val painter3 = rememberVectorPainter(image = vector)
                 val painter4 = rememberVectorPainter(image = vector)
+                val painter5 = rememberVectorPainter(image = vector)
                 Box(modifier = Modifier.fillMaxSize()) {
                     GameBoard(
                         gameEngine = viewModel.gameEngine,
@@ -70,6 +69,10 @@ class MainActivity : ComponentActivity() {
                             RoundedObjectResource(
                                 id = 8,
                                 painter = painter4
+                            ),
+                            RoundedObjectResource(
+                                id = 9,
+                                painter = painter5
                             ),
 
                             // boundaries
@@ -93,11 +96,7 @@ class MainActivity : ComponentActivity() {
                                 color = Color.Red,
                                 thicknessInPx = 5f,
                             ),
-                            BoundaryResource(
-                                id = 9,
-                                color = Color.Red,
-                                thicknessInPx = 5f,
-                            )
+
                         )
                     )
 

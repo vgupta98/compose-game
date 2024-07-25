@@ -3,7 +3,7 @@ package io.github.vgupta98.compose_game.domain
 import io.github.vgupta98.compose_game.data.Boundary
 import io.github.vgupta98.compose_game.data.RoundObject
 
-class InitialConditionsChecker {
+internal class InitialConditionsChecker {
 
     fun checkRoundObject(gameObject: RoundObject) {
 
@@ -11,8 +11,9 @@ class InitialConditionsChecker {
         require(gameObject.mass > 0f) { "Mass should be a positive value." }
         require(gameObject.radius > 0f) { "Radius should be a positive value." }
         require(gameObject.lastCollisionTime == 0f) { "Do not set the lastCollisionTime." }
-        require(gameObject.mass * gameObject.initialVelocity.magnitude() < INITIAL_MOMENTUM) { "momentum: ${gameObject.mass * gameObject.initialVelocity.magnitude()} should be less than $INITIAL_MOMENTUM." }
-        require(gameObject.initialVelocity.magnitude() < INITIAL_VELOCITY) { "initial velocity: ${gameObject.initialVelocity.magnitude()} should be less than $INITIAL_VELOCITY." }
+        require(gameObject.mass * gameObject.initialVelocity.magnitude() < INITIAL_MAX_MOMENTUM) { "momentum: ${gameObject.mass * gameObject.initialVelocity.magnitude()} should be less than $INITIAL_MAX_MOMENTUM." }
+        require(gameObject.initialVelocity.magnitude() < INITIAL_MAX_VELOCITY) { "initial velocity: ${gameObject.initialVelocity.magnitude()} should be less than $INITIAL_MAX_VELOCITY." }
+        require(gameObject.acceleration.magnitude() < INITIAL_MAX_ACCELERATION) { "acceleration: ${gameObject.acceleration.magnitude()} should be less than $INITIAL_MAX_ACCELERATION." }
     }
 
     fun checkBoundary(gameObject: Boundary) {
@@ -22,7 +23,8 @@ class InitialConditionsChecker {
 
     private companion object {
 
-        const val INITIAL_MOMENTUM = 70_000f
-        const val INITIAL_VELOCITY = 700f
+        const val INITIAL_MAX_MOMENTUM = 70_000f
+        const val INITIAL_MAX_VELOCITY = 700f
+        const val INITIAL_MAX_ACCELERATION = 200f
     }
 }
